@@ -25,7 +25,8 @@ namespace DALNorthWind.Entities
         public string ShipPostalCode { get; set; }
         public string ShipCountry { get; set; }
         public Status OrderStatus { get; set; }
+        public List<OrderDetails> OrderDetailList{ get; set; }
+        public List<Product> ProductList { get; set; }
 
- 
     }
 }
