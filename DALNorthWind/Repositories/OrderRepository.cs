@@ -43,18 +43,36 @@ namespace DALNorthWind.Repositories
                             var order = new Order();
                             order.OrderID = reader.GetInt32(0);
                             order.CustomerID = reader.GetString(1);
-                            order.EmployeeID = reader.GetInt32(2);
-                            order.OrderDate = reader.GetDateTime(3);
-                            order.RequiredDate = reader.GetDateTime(4);
+                            if (!reader.IsDBNull(2)) {
+                                order.EmployeeID = reader.GetInt32(2);
+                            }
+                            if (!reader.IsDBNull(3))
+                            {
+                               order.OrderDate = reader.GetDateTime(3);
+                            }
+                            if (!reader.IsDBNull(4)) {
+                                order.RequiredDate = reader.GetDateTime(4);
+                            }
                             if (!reader.IsDBNull(5))
                             {
                                 order.ShippedDate = reader.GetDateTime(5);
                             }
-                            order.ShipVia = reader.GetInt32(6);
-                            order.Freight = reader.GetDecimal(7);
-                            order.ShipName = reader.GetString(8);
-                            order.OrderStatus = (Status)Enum.Parse(typeof(Status), (string)reader["OrderStatus"], true);
-                            Console.WriteLine(order.OrderStatus);
+                            if (!reader.IsDBNull(6))
+                            {
+                                order.ShipVia = reader.GetInt32(6);
+                            }
+                            if (!reader.IsDBNull(7))
+                            {
+                                order.Freight = reader.GetDecimal(7);
+                            }
+                            if (!reader.IsDBNull(8))
+                            {
+                                order.ShipName = reader.GetString(8);
+                            }
+                            if (!reader.IsDBNull(14))
+                            {
+                               order.OrderStatus = (Status)Enum.Parse(typeof(Status), (string)reader["OrderStatus"], true);
+                            }
                             resultOrders.Add(order);
                         }
                     }
@@ -117,7 +135,6 @@ namespace DALNorthWind.Repositories
                         order.ShipName = reader.GetString(8);
                         order.OrderStatus = (Status)Enum.Parse(typeof(Status), (string)reader["OrderStatus"], true);
 
-                        Console.WriteLine("ID: order: " + reader.GetString(1));
                         reader.NextResult();
                         while (reader.Read())
                         {
@@ -144,7 +161,6 @@ namespace DALNorthWind.Repositories
                 }
             }
 
-
             return order;
         }
 
@@ -152,7 +168,7 @@ namespace DALNorthWind.Repositories
 
 
 
-        public void CreateNewOrder(Order order)
+        public int CreateNewOrder(Order order)
         {
             string cmdText = "INSERT INTO Northwind.Orders(CustomerID " +
                    ", EmployeeID, OrderDate, RequiredDate, " +
@@ -160,6 +176,7 @@ namespace DALNorthWind.Repositories
                    " VALUES (@custId, " +
                   " @empId, @orderDate, @reqDate, " +
                  " @shippedDate, @shipVia, @freight, @shipName, @shipAddress, @shipCity, @shipRegion, @shipPostalCode, @shipCountry);";
+            int res;
 
             using (var conn = ProviderFactory.CreateConnection())
             {
@@ -306,18 +323,20 @@ namespace DALNorthWind.Repositories
                     }
                     cmd.Parameters.Add(shipCountry);
 
-                    int res = cmd.ExecuteNonQuery();
+                    res = cmd.ExecuteNonQuery();
 
-                    Console.WriteLine(res + "  row was added.");
+                    //Console.WriteLine(res + "  row was added.");
 
                 }
             }
+
+            return res;
 
         }
 
    
 
-        public void Update(Order o)
+        public int Update(Order o)
         {
             string cmdText = "UPDATE Northwind.Orders " +
                 " SET EmployeeID = @empid, RequiredDate = @reqdate, " +
@@ -326,7 +345,7 @@ namespace DALNorthWind.Repositories
                 " ShipCity = @shipcity, ShipRegion = @shipregion, " +
                 " ShipPostalCode = @shippostcode, ShipCountry = @shipcountry " +
                 "    WHERE OrderID = @orderId; ";
-
+            int res=0;
 
             Order origOrder = GetOrderById(o.OrderID);
             if (origOrder.OrderStatus == Order.Status.IN_PROGRESS || origOrder.OrderStatus == Order.Status.COMPLETED)
@@ -401,18 +420,17 @@ namespace DALNorthWind.Repositories
                         shipcountry.Value = (object)o.ShipCountry ?? DBNull.Value;
                         cmd.Parameters.Add(shipcountry);
 
-                        int res = cmd.ExecuteNonQuery();
+                        res = cmd.ExecuteNonQuery();
 
-                        Console.WriteLine($"{res} lines were updated ");
+                       // Console.WriteLine($"{res} lines were updated ");
                     }
                 }
 
-
-
             }
+            return res;
         }
 
-        public void Delete(int id)
+        public int Delete(int id)
         {
 
             string cmdSelectText = "SELECT count(*) FROM Northwind.Orders " +
@@ -422,7 +440,7 @@ namespace DALNorthWind.Repositories
             string cmdDeleteOrderText = "DELETE FROM Northwind.Orders " +
                                         "WHERE OrderID=@id and (OrderDate IS NULL or ShippedDate IS NULL)";
 
-            int resCount = 0;
+            int resCount = 0, res1=0, res2=0;
             using (var conn = ProviderFactory.CreateConnection())
             {
                 conn.ConnectionString = ConnectionString;
@@ -459,9 +477,8 @@ namespace DALNorthWind.Repositories
                         orderId.ParameterName = "@id";
                         orderId.Value = id;
                         cmd.Parameters.Add(orderId);
-                        int res = cmd.ExecuteNonQuery();
-                        Console.WriteLine("Deleted Order Details: " + res);
-                    }
+                        res1 = cmd.ExecuteNonQuery();
+                     }
                 }
 
                 using (var conn = ProviderFactory.CreateConnection())
@@ -478,24 +495,23 @@ namespace DALNorthWind.Repositories
                         orderId.Value = id;
                         cmd.Parameters.Add(orderId);
 
-                        int res = cmd.ExecuteNonQuery();
-                        Console.WriteLine(res + " rows were deleted");
-                    }
+                        res2 = cmd.ExecuteNonQuery();
+                     }
                 }
 
             }
 
-
+            return res1 + res2;
         }
 
 
 
 
-        public void MoveToInProgress(int id, DateTime newOrderDate)
+        public int MoveToInProgress(int id, DateTime newOrderDate)
         {
             string cmdText = "UPDATE Northwind.Orders " +
                 " SET OrderDate=@date WHERE OrderID=@orderId";
-
+            int res=0;
             using (var conn = ProviderFactory.CreateConnection())
             {
                 conn.ConnectionString = ConnectionString;
@@ -515,19 +531,20 @@ namespace DALNorthWind.Repositories
                     orderDate.Value = newOrderDate.ToString("yyyy-MM-dd hh:mm:ss");
                     cmd.Parameters.Add(orderDate);
 
-                    int res = cmd.ExecuteNonQuery();
-                    Console.WriteLine(res + " moved to In Progress");
+                    res = cmd.ExecuteNonQuery();
+                   // Console.WriteLine(res + " moved to In Progress");
                 }
             }
-
+            return res;
 
         }
 
-        public void MoveToCompleted(int orderId, DateTime shippedDate)
+        public int  MoveToCompleted(int orderId, DateTime shippedDate)
         {
             string cmdText = "UPDATE Northwind.Orders " +
                             " SET ShippedDate=@date WHERE OrderID=@orderId";
 
+            int res = 0;
             using (var conn = ProviderFactory.CreateConnection())
             {
                 conn.ConnectionString = ConnectionString;
@@ -547,10 +564,11 @@ namespace DALNorthWind.Repositories
                     orderDate.Value = shippedDate.ToString("yyyy-MM-dd hh:mm:ss");
                     cmd.Parameters.Add(orderDate);
 
-                    int res = cmd.ExecuteNonQuery();
+                    res = cmd.ExecuteNonQuery();
                     Console.WriteLine(res + " moved to Done");
                 }
             }
+            return res;
 
         }
 
@@ -610,7 +628,7 @@ namespace DALNorthWind.Repositories
                             CustOrderDetails c = new CustOrderDetails();
                             c.ProductName = reader.GetString(0);
                             c.UnitPrice = reader.GetDecimal(1);
-                            c.Quantity = reader.GetInt32(2);
+                            c.Quantity = reader.GetInt16(2);
                             c.Discount = reader.GetInt32(3);
                             c.ExtendedPrice = reader.GetDecimal(4);
                             result.Add(c);

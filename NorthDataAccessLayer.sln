@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NorthDataAccessLayer", "Nor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DALNorthWind", "DALNorthWind\DALNorthWind.csproj", "{BA1872D5-0155-487B-A29F-B16E62DEF373}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_North_DAL", "Test_North_DAL\Test_North_DAL.csproj", "{3A957A1D-8AEB-4C88-8C44-CB880B89C674}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{BA1872D5-0155-487B-A29F-B16E62DEF373}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA1872D5-0155-487B-A29F-B16E62DEF373}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA1872D5-0155-487B-A29F-B16E62DEF373}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A957A1D-8AEB-4C88-8C44-CB880B89C674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A957A1D-8AEB-4C88-8C44-CB880B89C674}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A957A1D-8AEB-4C88-8C44-CB880B89C674}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A957A1D-8AEB-4C88-8C44-CB880B89C674}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,7 @@
 ﻿using DALNorthWind.Entities;
 using DALNorthWind.Repositories;
 using System;
+using System.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,13 +13,16 @@ namespace NorthDataAccessLayer
     {
         static void Main(string[] args)
         {
-            OrderRepository orderRepository = new OrderRepository(@"Data Source=(localdb)\ProjectsV13;Initial Catalog=Northwind;Integrated Security=True", "System.Data.SqlClient");
-            //   orderRepository.GetOrders();
-            Order o = orderRepository.GetOrderById(10255);  // 10251);
-            Console.WriteLine("custid:" +o.CustomerID);
-            o.ShipCity = "Brno";
 
-            orderRepository.CreateNewOrder(o);
+            OrderRepository orderRepository = new OrderRepository(ConfigurationManager.ConnectionStrings["NorthWindDAL"].ConnectionString, ConfigurationManager.ConnectionStrings["NorthWindDAL"].ProviderName);
+            //orderRepository.CallCustOrdersDetail(11076);   
+            orderRepository.MoveToCompleted(11062, DateTime.Now);
+            //orderRepository.GetOrders();
+            //Order o = orderRepository.GetOrderById(10255);  // 10251);
+          // Console.WriteLine("custid:" +o.CustomerID);
+           // o.ShipCity = "Brno";
+
+          //  orderRepository.CreateNewOrder(o);
           //  orderRepository.Update(o);
           // orderRepository.CreateNewOrder(o);
 
